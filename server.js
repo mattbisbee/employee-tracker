@@ -9,17 +9,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 // Connect to database
-const db = mysql.createConnection(
-  {
-    host: 'localhost',
-    // Your MySQL username,
-    user: 'root',
-    // Your MySQL password
-    password: 'Biznaz0814!',
-    database: 'employee_db'
-  },
-  console.log('Connected to employee_db.')
-);
+
 
 // View all employees
 app.get('/api/employee', (req, res) => {
@@ -55,20 +45,22 @@ app.get('/api/employee/:id', (req, res) => {
 });
 
 // View all roles
-app.get('/api/role', (req, res) => {
-  const sql = `SELECT * FROM role`;
+function viewAllRoles() {
+  app.get('/api/role', (req, res) => {
+    const sql = `SELECT * FROM role`;
 
-  db.query(sql, (err, rows) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    res.json({
-      message: 'success',
-      data: rows
+    db.query(sql, (err, rows) => {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      res.json({
+        message: 'success',
+        data: rows
+      });
     });
   });
-});
+};
 
 // View a single role
 app.get('/api/role/:id', (req, res) => {
