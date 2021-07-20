@@ -110,8 +110,8 @@ function createDept() {
 };
 
 function createRole() {
-  currentDepts = [];
-  connection.query('SELECT * FROM Department', function (err, res) {
+  let currentDepts = [];
+  connection.query('SELECT * FROM Department', (err, res) => {
     if (err) throw err;
     for (var i = 0; i < res.length; i++) {
       currentDepts.push({name: res[i].name, value: res[i].id})
@@ -147,20 +147,23 @@ function createRole() {
 
 
 function createEmployee() {
-  const currentRoles = [];
-  const currentEmployees = [];
-  connection.query('SELECT * FROM Role', function (err, res) {
+  let currentRoles = [];
+  let currentEmployees = [];
+
+  connection.query('SELECT * FROM Role', (err, res) => {
     if (err) throw err;
     for (var i = 0; i < res.length; i++) {
       currentRoles.push({name:res[i].title, value:res[i].id})
     }
   })
-  connection.query('SELECT * FROM Employee', function (err, res) {
+
+  connection.query('SELECT * FROM Employee', (err, res) => {
     if (err) throw err;
     for (var i = 0; i < res.length; i++) {
       currentEmployees.push({name: res[i].first_name + " " + res[i].last_name, value: res[i].id});
     }
   })
+
   inquirer.prompt([
     {
       type: 'input',
@@ -203,9 +206,57 @@ function createEmployee() {
 
 //'Update' functions
 function updateEmployee() {
-  connection.query(
-  )
+  let currentRoles = [];
+  let currentEmployees = [];
+
+  connection.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title,  department.name AS department_name, CONCAT(manager.first_name ," ", manager.last_name) AS manager
+  FROM Employee
+  LEFT JOIN Role ON employee.role_id = role.id
+  LEFT JOIN Department ON role.department_id = department.id
+  LEFT JOIN Employee manager ON manager.id = employee.manager_id`, (err, res) => {
+    if (err) throw err;
+    for (var i = 0; i < res.length; i++) {
+      currentRoles.push({name:res[i].title, value:res[i].id})
+    }
+  })
+
+  connection.query('SELECT * FROM Employee', (err, res) => {
+    if (err) throw err;
+    for (var i = 0; i < res.length; i++) {
+      currentEmployees.push({name: res[i].first_name + " " + res[i].last_name, value: res[i].id});
+    }
+  })
+  console.log(currentRoles);
+  console.log(currentEmployees)
+
+  inquirer.prompt([
+    {
+      type: 'input',
+      name: 'enter',
+      message: 'Press enter to start update process'
+    },
+    {
+      type: 'list',
+      name: 'select_employee',
+      message: 'Select the employee you wish to update:',
+      choices: currentEmployees
+    },
+    {
+      type: 'list',
+      name: 'role_id',
+      message: 'Select the new role for the employee:',
+      choices: currentRoles
+    }
+  ]).then((res) => {
+    console.log(res);
+    connection.query('UPDATE Employee SET role_id = ? WHERE id = ?', [res['role_id'], res['select_employee']], (err, res) => {
+      if (err) throw err;
+      console.log('Employee has been updated!');
+      startProgram();
+    })
+  })
 };
+
 
 startProgram();
 
