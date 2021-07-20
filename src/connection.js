@@ -7,7 +7,7 @@ let connection = mysql.createConnection(
     // MySQL username,
     user: 'root',
     // MySQL password
-    password: 'Biznaz0814!',
+    password: '',
     database: 'employee_db'
   },
   console.log('Connected to employee_db.')
